@@ -1,6 +1,5 @@
 ﻿var Operators = (function () {
-    return
-    [
+    return [
         {
             precedence: 0,
             sign: "+",
