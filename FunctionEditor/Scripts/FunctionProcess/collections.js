@@ -61,7 +61,7 @@ Array.prototype.firstOrDefault = function (f) {
 Array.prototype.last = function (f) {
     var index = this.length - 1;
     var result = null;
-    if (helper.isNullOrUndefined(f))
+    if (f == undefined)
         return this[this.length - 1];
     do {
         if (f(this[index])) {
@@ -142,7 +142,7 @@ Array.prototype.remove = function (f) {
             this.splice(index, 1);
         }
         index++;
-    } while (index < this.length);
+    } while (index < this.length && !condition);
     return this;
 };
 

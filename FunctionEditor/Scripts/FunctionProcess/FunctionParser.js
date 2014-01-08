@@ -48,26 +48,79 @@ function Term() {
     this.subterms = [];
 
     this.process = function () {
-        self.subterms.foreach(function (item, index) {
-            var res = item.parsedText;//.process();
-            self.parsedText = self.parsedText.replace("t" + index, res);
-        });
-        var value = "";
-        var operands = [];
-        for (var i = 0; i < self.parsedText.length; i++)
-        {
-            var char = self.parsedText[i];
-            var op = Operators.firstOrDefault(function (item) { return item.sign == char; });
-            if (op) {
-                var operand = new Operand();
-                operands.push();
-                operands.push("");
+        return self.createOperands();
+    }
+
+    this.createOperands = function () {
+        var list = self.parseOperators();
+        //
+        //Only a constant value
+        if (list.length == 1 && !isNaN(list[0])) return list[0];
+
+        var operand;
+        do {
+            var op = Operators.any(function (op) { return op == list[0]; }) ? list[0] : list[1];
+            var surr1 = isNaN(list[0]) ? list[1] : list[0];
+            var surr2 = isNaN(list[2]) ? null : list[2];
+            if (!operand) {
+                operand = op.action(surr1, surr2);
             }
-            else
-                value += char;
+            else {
+                operand = op.action(operand, surr1);
+            }
+            list.remove(op);
+            list.remove(surr1);
+            if (surr2) list.remove(surr2);
         }
-        operands.foreach(function (op, index) {
-        });
-        console.log(operands);
+        while (list.length > 0);
+        console.log(operand);
+        return operand;
+    }
+
+    this.parseNumberStarts = function (text) {
+        var number = "";
+        while (text.length > 0 && !isNaN(text[0])) {
+            number += text[0];
+            text = text.substr(1);
+        }
+        return number;
+    }
+
+    this.parseOperators = function () {
+        var list = [];
+        var text = self.parsedText;
+        //
+        //Create flatten array of numbers and operators
+        do {
+            var number = self.parseNumberStarts(text);
+            if (number != "") {
+                list.push(parseFloat(number));
+                text = text.substr(number.length);
+            }
+            if (text[0] == "t") {
+                var index = parseFloat(self.parseNumberStarts(text.substr(1)));
+                number = self.subterms[index].process();
+                text = text.substr(("t" + index).length);
+                list.push(parseFloat(number));
+            }
+
+            var op = Operators.firstOrDefault(function (item) { return item.sign == text.substr(0, item.sign.length); });
+            if (op) {
+                list.push(op);
+                text = text.substr(op.sign.length);
+            }
+
+        } while (text.length > 0)
+
+        var op = Operators.firstOrDefault(function (item) { return item == list[0]; });
+        if (op && op.isOneVariableOp) {
+            var numb = list[1];
+            list.remove(op);
+            list.remove(numb);
+            list.splice(0, 0, op.action(numb));
+        }
+
+        console.log(list);
+        return list;
     }
 }
