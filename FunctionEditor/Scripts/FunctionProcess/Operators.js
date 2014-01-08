@@ -44,7 +44,43 @@
             isOneVariableOp: false,
             action: function (a, b) {
                 if (isNaN(a) || isNaN(b)) console.error(a + " or " + b + " is not a number!");
-                return Math.pow(parseFloat(a),parseFloat(b));
+                return Math.pow(parseFloat(a), parseFloat(b));
+            }
+        },
+        {
+            precedence: 1,
+            sign: "sin",
+            isOneVariableOp: true,
+            action: function (a, b) {
+                if (isNaN(a)) console.error(a + " is not a number!");
+                return Math.sin((Math.PI / 180) * a);
+            }
+        },
+        {
+            precedence: 1,
+            sign: "cos",
+            isOneVariableOp: true,
+            action: function (a, b) {
+                if (isNaN(a)) console.error(a + " is not a number!");
+                return Math.cos((Math.PI / 180) * a);
+            }
+        },
+        {
+            precedence: 1,
+            sign: "tan",
+            isOneVariableOp: true,
+            action: function (a, b) {
+                if (isNaN(a)) console.error(a + " is not a number!");
+                return Math.tan((Math.PI / 180) * a);
+            }
+        },
+        {
+            precedence: 1,
+            sign: "ctg",
+            isOneVariableOp: true,
+            action: function (a, b) {
+                if (isNaN(a)) console.error(a + " is not a number!");
+                return 1/(Math.tan((Math.PI / 180) * a));
             }
         }
     ];

@@ -27,11 +27,10 @@
     }
 
     var _parseText = function (input) {
-        if (input[0] != "(")
-            input = "(" + input + ")";
+        input = "(" + input + ")";
         var term = _parseTerms(input, 0).result;
         console.log(term);
-        term.process();
+        return term.process();
     };
 
     return {
@@ -73,7 +72,7 @@ function Term() {
             if (surr2) list.remove(surr2);
         }
         while (list.length > 0);
-        console.log(operand);
+        //console.log(operand);
         return operand;
     }
 
@@ -120,7 +119,7 @@ function Term() {
             list.splice(0, 0, op.action(numb));
         }
 
-        console.log(list);
+        //console.log(list);
         return list;
     }
 }
