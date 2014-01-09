@@ -11,7 +11,7 @@
             </hgroup>
             <p>
                 Function test: <input id="tbFunc" type="text" style="width:300px;" />
-                <button onclick="$('#result').html(parser.parseText($('#tbFunc').val()))">Calculate</button>
+                <button onclick="parser.processFunction($('#tbFunc').val())">Calculate</button>
                 <br/>
                 Result
                 <p id="result">
