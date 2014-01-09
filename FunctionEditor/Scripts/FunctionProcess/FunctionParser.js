@@ -1,9 +1,11 @@
 ﻿var parser = (function () {
-   var _processTerms = function (input) {
+    var _processTerms = function (input) {
 
         var list = _matchTerms(input);
+        var variables = [{ name: 'x', value: 2 }];
+        var term = _createTerms(list);
 
-        console.log(_createTerms(list));
+        console.log(term.process(variables));
     }
 
     //Try to match the text with numbers and operators
@@ -38,17 +40,17 @@
                 else {
                     //Variable parsing
                     var val = text.match(/\b[a-z]/);
-                    if (val)
+                    if (val) {
                         list.push({
                             name: val[0]
-                        })
-                    text = text.substr(val.length);
+                        });
+                        text = text.substr(val.length);
+                    }
                 }
             }
 
         } while (text.length > 0)
 
-        console.log(list);
         return list;
     }
 
@@ -85,24 +87,34 @@ function Term() {
 
     this.terms = [];
 
-    this.process = function () {
-        return self.createOperands();
-    }
-
-    this.createOperands = function () {
-        //
-        //Only a constant value
-        if (list.length == 1 && !isNaN(list[0])) return list[0];
+    this.process = function (vars) {
         var result, index = 0;
         do {
             var op = Operators.getOperator(self.terms[index]);
-            if (op) {
-                op.calculate(self.terms[index - 1], self.terms[index + 1]);
+            var important =  op && !self.terms.where(function (tmp, i) { return i > index; }).any(function (term) { return term.precedence > op.precedence; });
+            if (important) {
+                var surr1 = self.terms[index - 1];
+                var surr2 = self.terms[index + 1];
+                //
+                //Nested Terms
+                if (surr1 && surr1.constructor == Term) surr1 = surr1.process(vars);
+                if (surr2 && surr2.constructor == Term) surr2 = surr2.process(vars);
+                //
+                //Variables
+                if (surr1 && surr1.name)
+                    surr1 = vars.firstOrDefault(function (v) { return surr1.name == v.name; }).value;
+                if (surr2 && surr2.name)
+                    surr2 = vars.firstOrDefault(function (v) { return surr2.name == v.name; }).value;
+                var operationRes = op.calculate(surr1, surr2);
+                result = operationRes.value;
+                self.terms.splice(index > 0 ? index - 1 : 0, operationRes.count);
+                if (self.terms.length > 0) self.terms.splice(index > 0 ? index - 1 : 0, 0, result);
+                index = 0;
             }
-            index++;
+            else
+                index++;
         }
         while (self.terms.length > 0);
-        console.log(result);
         return result;
     }
 }

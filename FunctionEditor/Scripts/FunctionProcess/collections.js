@@ -91,7 +91,7 @@ Array.prototype.lastOrDefault = function (f) {
 Array.prototype.where = function (f) {
     var result = [];
     for (var i = 0; i < this.length; i++) {
-        if (f(this[i])) {
+        if (f(this[i], i)) {
             result.push(this[i]);
         }
     }

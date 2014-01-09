@@ -1,67 +1,69 @@
 ﻿var Operators = (function () {
     return {
         getOperator: function (value) {
-            return this.primary.firstOrDefault(function (item) { return value == item || item.sign == value.substr(0, item.sign.length); })
+            return this.primary.firstOrDefault(function (item) { return value == item || (isNaN(value) && item.sign == value.toString().substr(0, item.sign.length)); })
         },
         primary: [
             {
                 precedence: 0,
                 sign: "+",
                 calculate: function (a, b) {
-                    if (isNaN(a)) console.error(a + " or " + b + " is not a number!");
-                    if (Operators.getOperator(a) && !isNaN(b))
-                        return b;
+                    if (isNaN(b)) console.error(b + " is not a number!");
+                    if (isNaN(a))
+                        return { value: b, count: 2 };
                     if (!isNaN(a) && !isNaN(b))
-                        return parseFloat(a) + parseFloat(b);
+                        return { value: parseFloat(a) + parseFloat(b), count: 3 };
 
-                    console.log("Error in operator '" + this.sign +"'");
+                    console.log("Error in operator '" + this.sign + "'");
                 }
             },
             {
                 precedence: 0,
                 sign: "-",
-                action: function (a, b) {
-                    if (isNaN(a)) console.error(a + " is not a number!");
-                    if (!b || b == "")
-                        return parseFloat(a) * (-1);
-                    return parseFloat(a) - parseFloat(b);
+                calculate: function (a, b) {
+                    if (isNaN(b)) console.error(b + " is not a number!");
+                    if (isNaN(a))
+                        return { value: -(b), count: 2 };
+                    if (!isNaN(a) && !isNaN(b))
+                        return { value: parseFloat(a) - parseFloat(b), count: 3 };
+
+                    console.log("Error in operator '" + this.sign + "'");
                 }
             },
             {
                 precedence: 1,
                 sign: "*",
-                action: function (a, b) {
+                calculate: function (a, b) {
                     if (isNaN(a) || isNaN(b)) console.error(a + " or " + b + " is not a number!");
-                    return parseFloat(a) * parseFloat(b);
+                    return { value: parseFloat(a) * parseFloat(b), count: 3 };
+
+                    console.log("Error in operator '" + this.sign + "'");
                 }
             },
             {
                 precedence: 1,
                 sign: "/",
-                action: function (a, b) {
+                calculate: function (a, b) {
                     if (isNaN(a) || isNaN(b)) console.error(a + " or " + b + " is not a number!");
-                    return parseFloat(a) / parseFloat(b);
+                    return { value: parseFloat(a) / parseFloat(b), count: 3 };
+                }
+            },
+            {
+                precedence: 1,
+                sign: "^",
+                calculate: function (a, b) {
+                    if (isNaN(a) || isNaN(b)) console.error(a + " or " + b + " is not a number!");
+                    return { value: Math.pow(parseFloat(a), parseFloat(b)), count: 3 };
+                }
+            },
+            {
+                precedence: 1,
+                sign: "sqrt",
+                calculate: function (a, b) {
+                    if (isNaN(b)) console.error(b + " is not a number!");
+                    return { value: Math.sqrt(parseFloat(b)), count: 2 };
                 }
             }
-        //,
-        //{
-        //    precedence: 1,
-        //    sign: "^",
-        //    isOneVariableOp: false,
-        //    action: function (a, b) {
-        //        if (isNaN(a) || isNaN(b)) console.error(a + " or " + b + " is not a number!");
-        //        return Math.pow(parseFloat(a), parseFloat(b));
-        //    }
-        //},
-        //{
-        //    precedence: 1,
-        //    sign: "sqrt",
-        //    isOneVariableOp: true,
-        //    action: function (a, b) {
-        //        if (isNaN(a)) console.error(a + " is not a number!");
-        //        return Math.sqrt(parseFloat(a));
-        //    }
-        //},
         //{
         //    precedence: 1,
         //    sign: "sin",
@@ -114,7 +116,7 @@ var SpecOperators = (function () {
             if (text.substr(0, this.oBracket.sign.length) == this.oBracket.sign)
                 return this.oBracket;
             if (text.substr(0, this.cBracket.sign.length) == this.cBracket.sign)
-                return this.cBracket; 
+                return this.cBracket;
         }
     }
 })();
