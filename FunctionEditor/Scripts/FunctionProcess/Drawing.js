@@ -16,6 +16,7 @@
     }
 
     var initCanvas = function () {
+        ctx.clearRect(0, 0, defaults.size.width, defaults.size.height);
         ctx.lineWidth = defaults.lineWidth;
 
         //
@@ -62,13 +63,15 @@
 
     //
     //
-    var _createDatasource = function (input)
-    {
+    var _createDatasource = function (input) {
+        initCanvas();
         var data = [];
+        var func = parser.processTerms(input);
+
         for (var x = 0 - defaults.size.width / 2; x <= defaults.size.width / 2; x++) {
             var x0 = x / defaults.scaleX;
-            var func = input.replace(/x/g, x0);
-            var y = parser.parseText(func);
+            var variables = [{ name: 'x', value: x0 }];
+            var y = func.process(variables);
             if (y != Infinity && !isNaN(y))
                 data.push({
                     x: origo.x + x,
@@ -91,7 +94,7 @@
     }
 
     initCanvas();
-    
+
 
     return {
         createDatasource: _createDatasource
